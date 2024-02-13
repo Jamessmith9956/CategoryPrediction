@@ -29,6 +29,23 @@ Given the skew in the data, I need to keep an eye on the false positive rate and
 
 looking at these as a human, there is a lot of intuitive information in the descriptions, so a pretrained  model text classification model is probably going to work the best. DT and Forrests are not going to be robust to unseen data, or handle the skew well.
 
+## 3. Model Building - 13/02/2024
+### Distance Measures
+My basic model to vectorise the data without using any complex NN model.
+I'm most familiar with cosine similarity, which requires I vectorise the data, typically through word frequency. 
+
+other [options](https://flavien-vidal.medium.com/similarity-distances-for-natural-language-processing-16f63cd5ba55) I am less experienced using include: LCS, Edit Distance and Hamming Distance. 
+Hamming and Edit distance out, however LCS might be usable with some finicking.
+
+overall the efficeincy of this method is O(n^2), so another method will be needed to scale (DT, PageRank).
+
+## Data preperation
+I've pretty much imediately hit a problem, there are 2 catgories with only 1 record, meaning I cannot seperate them into train test and val sets evenly. I have the option of a number of oversampling methods, but I might save these for tomorrow and just drop the class for now. looking at the case, I could even generate new entries, but I would have to do the same for the subcategories with similar issues.
+
+For now: Drop the categories and pick a oversampling method for tomorrow.
+
+
+
 
 # Solution
 
