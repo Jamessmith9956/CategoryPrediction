@@ -39,13 +39,22 @@ Hamming and Edit distance out, however LCS might be usable with some finicking.
 
 overall the efficeincy of this method is O(n^2), so another method will be needed to scale (DT, PageRank).
 
+### basic vectorisers 
+[Medium](https://medium.com/geekculture/how-sklearns-countvectorizer-and-tfidftransformer-compares-with-tfidfvectorizer-a42a2d6d15a2) provides good articles detailing the difference between basic vectorizers availiable in SK learn.
+Count vectoriser: Tokenises the text and counts the frequency of each word.
+Tfidf vectoriser: does the above + normalises the frequency of each word in the corpus.
+
+Tfidf is better for our case as it will decrease the importance of common words. That said I'm mindful of the bias I'm intoducing.
+
 ## Data preperation
-I've pretty much imediately hit a problem, there are 2 catgories with only 1 record, meaning I cannot seperate them into train test and val sets evenly. I have the option of a number of oversampling methods, but I might save these for tomorrow and just drop the class for now. looking at the case, I could even generate new entries, but I would have to do the same for the subcategories with similar issues.
+I've pretty much imediately hit a problem, there are 2 catgories with only 1 record, meaning I cannot seperate them into train test and val sets evenly. I have the option of a number of [oversampling methods](https://machinelearningmastery.com/data-sampling-methods-for-imbalanced-classification/), but I might save these for tomorrow and just drop the class for now. looking at the case, I could even generate new entries, but I would have to do the same for the subcategories with similar issues.
 
 For now: Drop the categories and pick a oversampling method for tomorrow.
 
 
+# Solutions
 
-
-# Solution
+## Cosine Similarity
+the heatmap from the basic cosine similarity on Tfidf vector representations was more sparse than I expected. I think this is mostly on the vectorisation and sampling method. 
+![heatmap showing ./analysis/naive_cosine_similarity](./analysis/naive_cosine_similarity.png)
 
