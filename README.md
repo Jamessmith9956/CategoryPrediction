@@ -66,7 +66,23 @@ I've pretty much imediately hit a problem, there are 2 catgories with only 1 rec
 
 After initally dropping the data, I will purse some augmentation methods for the underrepresented classes, perhaps just by querying an LLM for similar values.
 
-Fraud detection methods are promising, since we are targeting underrepresented classes.
+### 14/02/2024
+Fraud detection methods, sampling and sythnetic data in particular,  are promising since we are targeting underrepresented classes.
+Since I don't have many entries for the small samples, I'll try undersampling first, and then over sampling if that has no effect. 
+After all of this I will apply sythetic data methods.
+
+Also, stripping grammar and non alphanumeric characters actually hurt performance slightly on the embedded models, and made no differnece to the naive models since the tokenizer already does this. I should still probably do some cleaning, but I'll leave it for now.
+
+for under and over sampling I'm taking the approach detailed [here](https://machinelearningmastery.com/random-oversampling-and-undersampling-for-imbalanced-classification/)
+
+
+#### Undersampling
+It turns out undersampling only gives us like 20 datapoints. It did improve SVM's precision to like 0.4, but whether it will generalise is pretty dubious. 
+
+
+#### Oversampling
+Random oversampling can be combined with undersampling 
+
 
 
 ### Augmentation methods for text - 14/02/2024
