@@ -52,13 +52,24 @@ Tfidf vectoriser: does the above + normalises the frequency of each word in the 
 
 Tfidf is better for our case as it will decrease the importance of common words. That said I'm mindful of the bias I'm intoducing.
 
+### LLM embedders
+#### facebook/Data2Vec-text-base
+This model could be used to tokenise the data, then use the basic models from before to predict the category. 
+#### RoBERTa
+This is an established model that i'm more familiar with. I might start with this. 
+no need to reinvent the wheel here, a decent guide is [here](https://jesusleal.io/2020/10/20/RoBERTA-Text-Classification/)
+#### BAAI/bge-reranker-base
+FlagEmbedding, this 
+
 ## Data preperation
 I've pretty much imediately hit a problem, there are 2 catgories with only 1 record, meaning I cannot seperate them into train test and val sets evenly. I have the option of a number of [oversampling methods](https://machinelearningmastery.com/data-sampling-methods-for-imbalanced-classification/), but I might save these for tomorrow and just drop the class for now. looking at the case, I could even generate new entries, but I would have to do the same for the subcategories with similar issues.
 
-For now: Drop the categories and pick a oversampling method for tomorrow.
+After initally dropping the data, I will purse some augmentation methods for the underrepresented classes, perhaps just by querying an LLM for similar values.
 
 ### Augmentation methods for text - 14/02/2024
-I'm not that familiar with safely augmenting and oversampling strategies for text data, so I'm doing some research this moring 
+I'm not that familiar with safely augmenting and oversampling/undersampling strategies for text data, so I'm doing some research this moring 
+
+
 
 
 # Solutions
@@ -84,6 +95,8 @@ Test | F1        | 0.7348415318783748
 Val | Accuracy: | 0.7456140350877193
 Val | F1        | 0.6710382513661203
 ### SVM
+
+I'm somehow always surprised by SVM's performance.
 Simple prep performance: \
 data | metric | score
 ---  | ---    | ---
@@ -93,5 +106,26 @@ Test | F1        | 0.9624287238171699
 **Val** | **F1**        | **0.6792271898383953**
 
 
-
 ## Pretrained models
+
+While I could just query an LMM to come up with classifications, I somehow doubt its efficacy.
+I think to start it will be enough to use the embeddings and train a simple explainable model on top of that.
+
+[this article](https://medium.com/@echo_neath_ashtrees/no-labels-no-problem-a-better-way-to-classify-bank-transaction-data-73380ce20734) goes into detail on their approach.
+unfortunately they didn't provide a model, and the method seems a bit complicated for this task and the avalialbe dataset.
+
+Actually, looking at hugging face the newer [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) seems to be hugely popular atm. I imagine that is because it is a smaller model used in tutorials, therfore I'll use this first. 
+
+### MiniLM
+MiniLM embeddings instantly improved performance for even the worst models, With further improvements to data prep, I think we have a shot at attempting to predict the subcategories. \
+The issue still remains however, that the models are only predicting the top 2 categories.
+
+data | metric    | score
+---  | ---       | ---
+Test | Accuracy: | 0.7908745247148289
+Test | F1 Score  | 0.7237749318325486
+Val  | Accuracy: | 0.7543859649122807
+Val  | F1 Score  | 0.6755142083249586
+
+
+
