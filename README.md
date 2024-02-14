@@ -39,6 +39,12 @@ Hamming and Edit distance out, however LCS might be usable with some finicking.
 
 overall the efficeincy of this method is O(n^2), so another method will be needed to scale (DT, PageRank).
 
+#### Cosine Similarity
+the heatmap from the basic cosine similarity on Tfidf vector representations was more sparse than I expected. I think this is mostly on the vectorisation and sampling method. 
+![heatmap showing ./analysis/naive_cosine_similarity](./analysis/naive_cosine_similarity.png)
+
+Cosine similarity is unlikely usable on its own, but I could use it as part of a similarity forrest. That would just over complicate things, I would be better off going with a pre-trained model.
+
 ### basic vectorisers 
 [Medium](https://medium.com/geekculture/how-sklearns-countvectorizer-and-tfidftransformer-compares-with-tfidfvectorizer-a42a2d6d15a2) provides good articles detailing the difference between basic vectorizers availiable in SK learn.
 Count vectoriser: Tokenises the text and counts the frequency of each word.
@@ -51,10 +57,41 @@ I've pretty much imediately hit a problem, there are 2 catgories with only 1 rec
 
 For now: Drop the categories and pick a oversampling method for tomorrow.
 
+### Augmentation methods for text - 14/02/2024
+I'm not that familiar with safely augmenting and oversampling strategies for text data, so I'm doing some research this moring 
+
 
 # Solutions
+Initial models just predict food and entertainment and nothing else, indicating other sampling or augmentation methods will be needed for the dataset.
 
-## Cosine Similarity
-the heatmap from the basic cosine similarity on Tfidf vector representations was more sparse than I expected. I think this is mostly on the vectorisation and sampling method. 
-![heatmap showing ./analysis/naive_cosine_similarity](./analysis/naive_cosine_similarity.png)
+all sklearn models performed poorly, KNN and RF particularly so. SVMs performed ok, and might work with better data prep.
+## sklearn models
+### KNN -13/02/2024
+Simple prep performance:
+data | metric | score
+--- | --- | ---
+Test | F1        | 0.6938558968714562
+Test | Accuracy: | 0.7718631178707225
+Val | Accuracy: | 0.5087719298245614
+Val | F1        | 0.4558903035709458
 
+### Bayes
+Simple prep performance:
+data | metric | score
+--- | --- | ---
+Test | Accuracy: | 0.8136882129277566
+Test | F1        | 0.7348415318783748
+Val | Accuracy: | 0.7456140350877193
+Val | F1        | 0.6710382513661203
+### SVM
+Simple prep performance: \
+data | metric | score
+---  | ---    | ---
+Test | Accuracy: | 0.9657794676806084
+Test | F1        | 0.9624287238171699
+**Val** | **Accuracy:** | **0.7543859649122807**
+**Val** | **F1**        | **0.6792271898383953**
+
+
+
+## Pretrained models
