@@ -59,12 +59,15 @@ This model could be used to tokenise the data, then use the basic models from be
 This is an established model that i'm more familiar with. I might start with this. 
 no need to reinvent the wheel here, a decent guide is [here](https://jesusleal.io/2020/10/20/RoBERTA-Text-Classification/)
 #### BAAI/bge-reranker-base
-FlagEmbedding, this 
+FlagEmbedding, this is another option, but it seems a bit too complicated. it does have the advantage of being multi lingual, but I don't think that is necessary for this task.
 
 ## Data preperation
 I've pretty much imediately hit a problem, there are 2 catgories with only 1 record, meaning I cannot seperate them into train test and val sets evenly. I have the option of a number of [oversampling methods](https://machinelearningmastery.com/data-sampling-methods-for-imbalanced-classification/), but I might save these for tomorrow and just drop the class for now. looking at the case, I could even generate new entries, but I would have to do the same for the subcategories with similar issues.
 
 After initally dropping the data, I will purse some augmentation methods for the underrepresented classes, perhaps just by querying an LLM for similar values.
+
+Fraud detection methods are promising, since we are targeting underrepresented classes.
+
 
 ### Augmentation methods for text - 14/02/2024
 I'm not that familiar with safely augmenting and oversampling/undersampling strategies for text data, so I'm doing some research this moring 
@@ -120,12 +123,22 @@ Actually, looking at hugging face the newer [all-MiniLM-L6-v2](https://huggingfa
 MiniLM embeddings instantly improved performance for even the worst models, With further improvements to data prep, I think we have a shot at attempting to predict the subcategories. \
 The issue still remains however, that the models are only predicting the top 2 categories.
 
-data | metric    | score
----  | ---       | ---
-Test | Accuracy: | 0.7908745247148289
-Test | F1 Score  | 0.7237749318325486
-Val  | Accuracy: | 0.7543859649122807
-Val  | F1 Score  | 0.6755142083249586
+raw embedded data performance with SVM: \
+data  | metric    | score
+---   | ---       | ---
+Test  | Accuracy: | 0.9011406844106464
+Test  | F1 Score  | 0.8801286091193935
+**Val**   | **Accuracy:** | **0.7982456140350878**
+**Val**   | **F1 Score**  | **0.7256237353827878**
+
+Interestingly this model made one correct prediction other than food and entertainment, for the 'auto' category, while other models still can't do this.
+![confusion matrix](./analysis/confusion_matricies/svm_embeddings.png)
+
+notably though, none of these models perform well on macro averages, as they are only predicting 2 categories.
+
+
+## Classifying with Language models 
+I can finetune models to output classifications, but it seems like for 11 classes an LLM is likely to be over paramatised. I don't think I'll have time to really explore this, I think improving my data prep will have a bigger effect. 
 
 
 
