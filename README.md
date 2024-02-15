@@ -6,12 +6,48 @@ Use a notebook of your choice (Jupyter, Google, etc.) and preferably Python as a
 
 2. Can you also build a model which takes in a whole new transaction description (none of those that your model has seen for training and testing), and gives the closest possible category?
 
+# Results
+1. Issues:
+    - Lack of data has put subcategory prediction is out of reach.
+    - Oversampling techniques need a minimum of a few entries to work effectively.
+    - Synthetic data generation through LLMs is infeasible for me due to cost of compute.
+2. Outcomes:
+    - All models are only predicting the top 2 categories.
+    - Subcategories could not be reliably predicted.
+    - MiniLM embeddings instantly improved performance for even the worst models.
+    - Predicting just 'Food', 'Entertainment' and 'Other' improved generalisation, but not anything else.
+3. Prediction on unseen data:
+    - Results on the test set imply that the performance does generalise to unseen, if the performance was there to begin with.
+    - The models cannot come up with new categories for completely unseen data, but they will attempt to classify it as the next best category.
 
 
-# Journey
+# Analysis Journey
+## TL:DR
+- Intial Thoughts (13/02/2024): 
+    - Identified that all features are categorical and considered using embeddings.
+    - Planned to test basic sklearn models and pretrained VAEs.
+    - Cautious of using anything too complicated.
+- Data Exploration (13/02/2024):
+    - Limited exploration due to only 3 features.
+    - 400 rows with mostly unique transaction descriptions.
+    - Skew in categories, with Entertainment and Food being dominant.
+    - Noticed overlap in contents and subcategories unique to their category.
+    - Considered using distance measures and pretrained text classification models.
+- Model Building (13/02/2024):
+    - Explored distance measures like cosine similarity.
+    - Considered basic vectorizers like CountVectorizer and TfidfVectorizer.
+    - Implemented basic SKlearn models to limited success (SVM, KNN, Bayes).
+- Model Building (14/02/2024):
+    - Explored LLM embedders like facebook/Data2Vec-text-base and RoBERTa.
+    - Data preparation challenges with imbalanced classes.
+    - Explored undersampling and oversampling techniques.
+    - Tried SMOTE and ADASYN for oversampling.
+- Model Building (15/02/2024):
+    - Attempted generating synthetic data through LLM queries.
+    - Attempted class weights when oversampling techniques didn't work.
 
 ## 1. Intial Thoughts - 13/02/2024
-Looking at the data, I notice that all the features are categorical, so alot of algorithms aren't possible unless I find an embedding of some kind, while there are pre-trained embeddings available, they may not work, or fine tuning might not be effective on such a small dataset. 
+Looking at the data, all the features are categorical, so alot of algorithms aren't possible without embedding. There are pretrained embeddings avaliable, but I will also test basic sklearn models to see what the performance is like.
 
 Immediately, I'm thinking I can finish a DT or random forrest using SK learn by tonight, and explore other methods tomorrow. For tomorrow, there are pre-trained VAEs (typically used for embeddings) that I can fine tune for this problem, . I'm cautious of using anything too complicated.
 
@@ -41,18 +77,23 @@ overall the efficeincy of this method is O(n^2), so another method will be neede
 
 #### Cosine Similarity
 the heatmap from the basic cosine similarity on Tfidf vector representations was more sparse than I expected. I think this is mostly on the vectorisation and sampling method. 
+
+I now doubt the efficacy of KNN, which uses cosine similarity, to predict categories with this vectorization method.
+
 ![heatmap showing ./analysis/naive_cosine_similarity](./analysis/naive_cosine_similarity.png)
 
-Cosine similarity is unlikely usable on its own, but I could use it as part of a similarity forrest. That would just over complicate things, I would be better off going with a pre-trained model.
 
 ### basic vectorisers 
 [Medium](https://medium.com/geekculture/how-sklearns-countvectorizer-and-tfidftransformer-compares-with-tfidfvectorizer-a42a2d6d15a2) provides good articles detailing the difference between basic vectorizers availiable in SK learn.
-Count vectoriser: Tokenises the text and counts the frequency of each word.
-Tfidf vectoriser: does the above + normalises the frequency of each word in the corpus.
+#### Count vectoriser: 
+Tokenises the text and counts the frequency of each word.
+
+#### Tfidf vectoriser: 
+does the above + normalises the frequency of each word in the corpus.
 
 Tfidf is better for our case as it will decrease the importance of common words. That said I'm mindful of the bias I'm intoducing.
 
-### LLM embedders
+### LLM embedders - 14/02/2024
 #### facebook/Data2Vec-text-base
 This model could be used to tokenise the data, then use the basic models from before to predict the category. 
 #### RoBERTa
@@ -66,7 +107,9 @@ I've pretty much imediately hit a problem, there are 2 catgories with only 1 rec
 
 After initally dropping the data, I will purse some augmentation methods for the underrepresented classes, perhaps just by querying an LLM for similar values.
 
-### 14/02/2024
+I ran into a new issue with SVM, in that it requires lables to be numerical, however the label encoder cannot accept new unknown categories. for this reason I've investigated sklearn.preprocessing.OnHotEncoder which seems to have an ignore option which just refuses to label the entry. not sure how this will work with my confusion matrix tbh.
+
+### Sampling techniques 14/02/2024
 Fraud detection methods, sampling and sythnetic data in particular,  are promising since we are targeting underrepresented classes.
 Since I don't have many entries for the small samples, I'll try undersampling first, and then over sampling if that has no effect. 
 After all of this I will apply sythetic data methods.
@@ -81,13 +124,19 @@ It turns out undersampling only gives us like 20 datapoints. It did improve SVM'
 
 
 #### Oversampling
-Random oversampling can be combined with undersampling 
+Oversampling combined with undersampling didn't really work. Simple oversampling improved the spread of predictions, but didn't really improve performace much. 
 
+after investigating, it seems like my targeted oversampling isn't really working.
 
+#### SMOTE/ADASYN - 15/02/2024
+this oversampling techinque involves generating synthetic data using various methods. I can only use this on the embeddings as it requires continuous data.
 
-### Augmentation methods for text - 14/02/2024
-I'm not that familiar with safely augmenting and oversampling/undersampling strategies for text data, so I'm doing some research this moring 
+SMOTE will generate data using interpolation while ADASYN will use a KNN to try to generate data wich isn't categorised well by the KNN.
 
+These methods don't really work as we need more raw samples to sythesise form. 
+
+#### Synthetic data through LLM queries - 15/02/2024
+[Mixtral](https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1) is a popular easy to use model.
 
 
 
@@ -95,7 +144,7 @@ I'm not that familiar with safely augmenting and oversampling/undersampling stra
 Initial models just predict food and entertainment and nothing else, indicating other sampling or augmentation methods will be needed for the dataset.
 
 all sklearn models performed poorly, KNN and RF particularly so. SVMs performed ok, and might work with better data prep.
-## sklearn models
+## SkLearn models
 ### KNN -13/02/2024
 Simple prep performance:
 data | metric | score
@@ -127,13 +176,9 @@ Test | F1        | 0.9624287238171699
 
 ## Pretrained models
 
-While I could just query an LMM to come up with classifications, I somehow doubt its efficacy.
-I think to start it will be enough to use the embeddings and train a simple explainable model on top of that.
+I've chosen to use a LLM embeddings with a simple sklearn model, as it is explainable and reliable. I don't think I have the data to really fine tune the model, so I just use the naitive weights.
 
-[this article](https://medium.com/@echo_neath_ashtrees/no-labels-no-problem-a-better-way-to-classify-bank-transaction-data-73380ce20734) goes into detail on their approach.
-unfortunately they didn't provide a model, and the method seems a bit complicated for this task and the avalialbe dataset.
-
-Actually, looking at hugging face the newer [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) seems to be hugely popular atm. I imagine that is because it is a smaller model used in tutorials, therfore I'll use this first. 
+looking at hugging face the newer [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) seems to be hugely popular atm. I imagine that is because it is a smaller model used in tutorials, therfore I'll use this first. 
 
 ### MiniLM
 MiniLM embeddings instantly improved performance for even the worst models, With further improvements to data prep, I think we have a shot at attempting to predict the subcategories. \
@@ -147,14 +192,50 @@ Test  | F1 Score  | 0.8801286091193935
 **Val**   | **Accuracy:** | **0.7982456140350878**
 **Val**   | **F1 Score**  | **0.7256237353827878**
 
-Interestingly this model made one correct prediction other than food and entertainment, for the 'auto' category, while other models still can't do this.
-![confusion matrix](./analysis/confusion_matricies/svm_embeddings.png)
+![confusion matrix](./analysis/confusion_matricies/naive_svm_embeddings.png)
+
+Interestingly this model made one correct prediction other than food and entertainment, for the 'auto' category, while other models still can't do this. 
 
 notably though, none of these models perform well on macro averages, as they are only predicting 2 categories.
 
+attempting the same for subcategories resulted in less impressive classification. \
+data  | metric              | score
+---   | ---                 | ---
+Val   | Precision(macro):   |0.43003155862105896
+Val   | Recall(macro):      |0.47886442510098426
+**Val**   | **F1 Score(macro):**    |**0.42821507445163354**
+**Val**   | **F1 Score(weighted):** |**0.808160552897395**
+**Val**   | **Accuracy:**           |**0.8245614035087719**
 
-## Classifying with Language models 
-I can finetune models to output classifications, but it seems like for 11 classes an LLM is likely to be over paramatised. I don't think I'll have time to really explore this, I think improving my data prep will have a bigger effect. 
+#### weighted svm
+Weighted svm didn't really improve the performance at all, however it was able to correctly classify an extra category.
+Precision dropped slightly, but the model was able to correctly classify an extra category.
 
 
+#### Unseen data
+The SVM on embeddings worked quite well for the test set, acheiving a precision of 0.33 on the test set (excluding categories it hadn't trained on). The model is also able to categorize unseen categories to the next best category, but naturally this drops the precision (observed around 0.24 in this case)
 
+the KNN in this case performed even better than expected, matching the SVM's performance and classifying a 3rd class correctly.
+
+data  | metric              | score
+---   | ---                 | ---
+Test  | Precision(macro):   | 0.2912568306010929
+Test  | Recall(macro):      | 0.24174397031539885
+Test  | F1 Score(macro):    | 0.2520403316641561
+Test  | F1 Score(weighted): | 0.7684468223851164
+Test  | Accuracy:           | 0.8210526315789474
+
+![confusion matrix](./analysis/confusion_matricies/naive_svm_embeddings_test.png)
+
+weighted SVM had similar performance in test and val. 
+
+
+### LLM data sythinesis
+I attempted to get Mixtral 7b up and running but the download time was excessive, especially as I'm running locally. GeneZC/MiniMA-3B seems more feasible, but the download time is still like 2 hours. This may not be completed in time
+
+
+### classifying Food,Entertainment + other
+I think I can get better performance by just classifying Food, Entertainment and other, then classifying subcategories.
+
+This didn't improve the classificaiton of subcategories, but did improve the generalisation of 2 categories. \
+![confusion matrix](./analysis/confusion_matricies/simplified_svm_embeddings.png)
