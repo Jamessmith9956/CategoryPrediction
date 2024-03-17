@@ -239,3 +239,18 @@ I think I can get better performance by just classifying Food, Entertainment and
 
 This didn't improve the classificaiton of subcategories, but did improve the generalisation of 2 categories. \
 ![confusion matrix](./analysis/confusion_matricies/simplified_svm_embeddings.png)
+
+# Post Presentation improvements
+## Discussion
+During the presentation to the team it was suggested that I move to fasttext encodings and use an autoencoder to represent the categories in like space. this way the svm model will be able to classify vector representations into vector categories.
+
+i'm pretty unfamiliar with the dim reduction techinuqe, I can't tell if its as simple as applying the autoencoder to both input and category and then applying a ML process, or its as simple as applying a simple decoder to the embedded data.
+
+One important aspect I'm struggling to implement, is finding a way to utilise the information stored in the labels. for instance embedding the labels and training to predict the embedded labels.
+
+## Fasttext 
+In applying fasttext to the classificaiton problem, I'm struggling to see how to take advantage of dimension reduction techniques. Particularly how if it is useful at all to train a decoder to take embedded data and turn it into a class prediction.
+
+Fasttext is particularly interesting due to their n-gram embeddings, which better handle out of vocabulary words.
+That said for a larger dataset many say [Bert based models perform better](https://www.reddit.com/r/LanguageTechnology/comments/11vav4y/are_pretrained_word_embeddings_word2vec_glove/)
+Fasttext does have another advantage though, in its explianability and light resource usage.
