@@ -254,3 +254,8 @@ In applying fasttext to the classificaiton problem, I'm struggling to see how to
 Fasttext is particularly interesting due to their n-gram embeddings, which better handle out of vocabulary words.
 That said for a larger dataset many say [Bert based models perform better](https://www.reddit.com/r/LanguageTechnology/comments/11vav4y/are_pretrained_word_embeddings_word2vec_glove/)
 Fasttext does have another advantage though, in its explianability and light resource usage.
+
+## Autoencoder Method
+Autoencoders can be trained to reproduce the input data from a smaller representation. I should be able to categorise directly on the smaller embeddings, as they should represent some kind of semantics. 
+
+What I'm not sure about is how to choose the best size for the reduction. I will need at least 30 dimensions to represent all subcategories, but I think i'll need more than that.
