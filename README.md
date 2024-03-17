@@ -259,3 +259,24 @@ Fasttext does have another advantage though, in its explianability and light res
 Autoencoders can be trained to reproduce the input data from a smaller representation. I should be able to categorise directly on the smaller embeddings, as they should represent some kind of semantics. 
 
 What I'm not sure about is how to choose the best size for the reduction. I will need at least 30 dimensions to represent all subcategories, but I think i'll need more than that.
+
+### Decode to classification
+The dimension reduction does help a bit with generalisation, but not a much as I had hoped for. meanwhile my efforts to train a model to directly predict the categorical data have had even better generalisation, but worse performance.
+
+I'm now hoping I can combine the best of both worlds and see if I can get the auto encoder to decode directly into the categorical data, and thus capture the relevant semantics in the smaller embedding.
+
+My intuiton is that this won't work, as I don't really see any difference between this and the other DNN mehtods I've tried.
+
+As expected this worked really poorly.
+
+fine turning fasttext on my corpus might help the model to identify easy sub categories like 'vitamins' being in the category of 'medical' and not food.
+
+
+# Discussion
+
+After all of that, fast text didn't really help at all. Dimension reduciton using the auto encoder helped the model generalise, but not enough to tackle subcategories, and I don't really know where to take it next as I don't really have any strong intuitions about it.
+
+The next step would be to try using bigger and better models from which to reduce the embedding, or fine tune our embeddings on the corpus a bit.
+That or I could go even harder on the NN classifer route, but I would really need to take advantage of a bigger corpus.
+
+given time I'm moving onto my personal projects which have some overlap with this anyway.
